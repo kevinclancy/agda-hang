@@ -194,7 +194,7 @@ data Ṫ {i : Size} {l m n : ℕ} (Γ₀ : Γ l) (Ω₀ : Ω Γ₀ m) (Φ₀ : �
 
 -- Proof that U is a subtype of S 
 data _<:_ {i j k : Size} {n : ℕ} {Γ₀ : Γ n } (U : T {j} Γ₀) (S : T {k} Γ₀) : Set where
-  
+  Prf<: : (U <: S)
 
 
 -- data t {i : Size} {n : ℕ} (Γ₀ : Γ n) : {m : ℕ} {Γ₁ : Γ m} {p : PrefixΓ Γ₁ Γ₀} → (T₀ : T Γ₁1) → Set
@@ -281,7 +281,7 @@ data t {i : Size} {n : ℕ} (Γ₀ : Γ n) where
         (tScope : t {l} (Γ₀ ,Γ⟨ j ⟩ TBind) (T↑∞ TScope)) → 
         t {i} Γ₀ (T↑∞ TScope)
 
-data ṫ {i : Size} {l m n : ℕ} (Γ₀ : Γ l) (Ω₀ : Ω m) (Φ₀ : Φ n) where
+data ṫ {i : Size} {l m n : ℕ} (Γ₀ : Γ l) (Ω₀ : Ω Γ₀ m) (Φ₀ : Φ Γ₀ Ω₀ n) where
   {-
   Constant : (c : c) → ṫ {i}
   Var : (n : ℕ) → ṫ {i}
@@ -323,7 +323,7 @@ data ṫ {i : Size} {l m n : ℕ} (Γ₀ : Γ l) (Ω₀ : Ω m) (Φ₀ : Φ n) w
 -}
 
 -- t↑∞ : {i : Size} {n : ℕ} {Γ₀ : Γ n} {T₀ : T Γ₀} (t₀ : t {i} Γ₀ T₀) → t {∞} Γ₀ T₀
-t↑∞ {i} {n} {Γ₀} T₀ = ?
+t↑∞ {i} {n} {Γ₀} T₀ = {!!}
 
 -- forget : {i : Size} {n : ℕ} {Γ₀ : Γ n} → (T {i} Γ₀) → (T {∞} Γ₀) 
 T↑∞ {i} {n} {Γ₀} (RefBase {_} τ₁ tPred) =  RefBase {∞} τ₁ tPred
@@ -334,10 +334,10 @@ T↑∞ {i} {n} {Γ₀} (Fix {j} tCurrMetric T₁) = Fix {∞} {_} {_} {_} tCurr
 
 -- ṫ↑∞ : {i : Size} {l m n : ℕ} {Γ₀ : Γ l} {Ω₀ : Γ₀ m} {Φ₀ : Γ₀ Ω₀ n} {Ṫ₀ : Ṫ Γ₀ Ω₀ Φ₀} → 
 --      (t₀ : t {i} Γ₀ Ω₀ Φ₀ Ṫ₀) → (t {∞} Γ₀ Ω₀ Φ₀ Ṫ₀)
-ṫ↑∞ t₀ = ?
+ṫ↑∞ t₀ = {!!}
 
 -- Ṫ↑∞ : {i : Size} {l m n : ℕ} {Γ₀ : Γ l} {Ω₀ : Γ₀ m} {Φ₀ : Γ₀ Ω₀ n}  → (Ṫ {i} Γ₀ Ω₀ Φ₀) → (Ṫ {∞} Γ₀ Ω₀ Φ₀)
-Ṫ↑∞ t₀ = ?
+Ṫ↑∞ t₀ = {!!}
 
 -- makeAmbientEnv : ∀ {l m : ℕ} {Γ₀ : Γ l} → Vec (S.τ × t {j} Γ₀ boolT) m → Ω m  
 makeAmbientEnv formals = {!!}
@@ -346,6 +346,57 @@ makeAmbientEnv formals = {!!}
 --                     Φ {l} {m} {Γ₀} {makeAmbientEnv formals} m
 makeSelectorEnv [] = ·
 makeSelectorEnv ((τ , t) ∷ Ω₀) = {!!} -- (makeSelectorEnv Ω₀ , QualRefBase τ ? ⌈ t ⇡ Ω ⌉t) 
+
+-- it might be appropriate to put the below chunk into a module which only exposes the weakenBy functions
+
+weaken1-T : ∀  {i j : Size} {n : ℕ} → (Γ₀ : Γ n) → (T₀ : T {i} Γ₀) → (T₁ : T {j} Γ₀) → T {∞} (Γ₀ ,Γ⟨ j ⟩ T₁)
+
+weaken1-t : ∀ {i j k : Size} {n : ℕ} → (Γ₀ : Γ n) → (T₀ : T {i} Γ₀) → (t₀ : t {j} Γ₀ (T↑∞ T₀)) → 
+              (T₁ : T {k} Γ₀) → t {∞} (Γ₀ ,Γ⟨ k ⟩ T₁) (weaken1-T Γ₀ T₀ T₁) 
+
+weakenBy-T : ∀ {i : Size} {n m : ℕ} {Γ₀ : Γ n} → (T₀ : T {i} Γ₀) → (Γ₁ : Γ m) → (p : PrefixΓ Γ₀ Γ₁) → T {∞} Γ₁
+
+weakenBy-t : ∀ {i j : Size} {n m : ℕ} {Γ₀ : Γ n} {T₀ : T {i} Γ₀} → 
+                (t₀ : t {j} Γ₀ (T↑∞ T₀)) → (Γ₁ : Γ m) → (p : PrefixΓ Γ₀ Γ₁) → t {∞} Γ₁ (weakenBy-T T₀ Γ₁ p)
+
+weaken1-T Γ₀ T₀ T₁ = {!!}
+
+weakenBy-T {Γ₀ = Γ₀} T₀ .Γ₀ (prefixΓ-Refl .Γ₀) = T↑∞ T₀
+weakenBy-T {Γ₀ = Γ₀} T₀ Γ₁ (prefixΓ-Step {i} .Γ₀ T₁ .Γ₁ p) = weakenBy-T (weaken1-T Γ₀ T₀ T₁) Γ₁ p
+
+weaken1-t t = {!!}
+
+weakenBy-t {Γ₀ = Γ₀} {T₀} t₀ .Γ₀ (prefixΓ-Refl .Γ₀) = t↑∞ t₀
+weakenBy-t {Γ₀ = Γ₀} {T₀} t₀ Γ₁ (prefixΓ-Step {i} .Γ₀ T₁' .Γ₁ p) = weakenBy-t t₀' Γ₁ p
+  where
+    T₀' : T (Γ₀ ,Γ⟨ i ⟩ T₁')
+    T₀' = weaken1-T Γ₀ T₀ T₁'
+
+    t₀' : t (Γ₀ ,Γ⟨ i ⟩ T₁') T₀'
+    t₀' = weaken1-t Γ₀ T₀ t₀ T₁'
+
+-- ------------
+
+·PrefixΓ-trans : ∀ {l n m : ℕ} → (Γ₀ : Γ l) → (Γ₁ : Γ m) → (Γ₂ : Γ n) → 
+                   (p01 : PrefixΓ Γ₀ Γ₁) → (p12 : PrefixΓ Γ₁ Γ₂) → PrefixΓ Γ₀ Γ₂
+·PrefixΓ-trans Γ₀ Γ₁ Γ₂ (prefixΓ-Refl .(Γ₀)) p12 = p12
+·PrefixΓ-trans Γ₀ Γ₁ Γ₂ (prefixΓ-Step {j} .(Γ₀) T₀ .(Γ₁) p01) p12 = prefixΓ-Step Γ₀ T₀ Γ₂ r  
+  where
+    Γ₀' = (Γ₀ ,Γ⟨ j ⟩ T₀)
+  
+    r : PrefixΓ Γ₀' Γ₂
+    r = ·PrefixΓ-trans Γ₀' Γ₁ Γ₂ p01 p12 
+
+·PrefixΓ : ∀ {n : ℕ} (Γ₀ : Γ n) → PrefixΓ · Γ₀
+·PrefixΓ · = prefixΓ-Refl ·
+·PrefixΓ Γ₀@(Γ₀' ,Γ⟨ j ⟩ T₀) = ·PrefixΓ-trans · Γ₀' Γ₀ p q
+  where
+    p : PrefixΓ · Γ₀'
+    p = ·PrefixΓ Γ₀'
+
+    q : PrefixΓ Γ₀' Γ₀
+    q = prefixΓ-Step Γ₀' T₀ Γ₀ (prefixΓ-Refl Γ₀)
+
 
 -- _+τ_ : {len : ℕ} → Γ len → S.τ → Γ (suc len)
 Γ₀ Γ+τ τ₀ = {!!} -- (Γ₀ , RefBase τ₀ boolT)          
@@ -356,25 +407,34 @@ makeSelectorEnv ((τ , t) ∷ Ω₀) = {!!} -- (makeSelectorEnv Ω₀ , QualRefB
 -- boolT : {i : Size} {n : ℕ} → {Γ₀ : Γ n} → T {i} Γ₀
 boolT {i} = RefBase {↑ i} S.τBool (Constant {i} (S.cBool true)) 
 
--- natT : {i : Size} {n : ℕ} → {Γ₀ : Γ n} → T {i} Γ₀
-natT {i} = RefBase {↑ ↑ ↑ i} S.τInt 
-                            (Let {↑ ↑ i} intT
-                               boolT
-                               (Constant {↑ i} (S.cInt $ + 0))
-                               (SApp {↑ i} (SfConstant {i} S.SfLess) 
-                                           ((fromℕ 0) ∷ (fromℕ 1) ∷ [])
-                                           (intT ∷ intT ∷ [])
-                                           (refl ∷ refl ∷ [])
-                                           ?))
-     where
-       intT = (RefBase S.τInt (Constant $ S.cBool true))
+-- natT : {i : Size} {n : ℕ} → {Γ₀ : Γ n} → T {↑ ↑ ↑ i} Γ₀
+
+natT {i} {n} {Γ₀} =
+  RefBase {↑ ↑ ↑ i} {n} {Γ₀} 
+    S.τInt 
+    (Let {↑ ↑ i} intT
+                 boolT
+                 (Constant {↑ i} (S.cInt $ + 0))
+                 (SApp {↑ i} {suc n} {Γ₀ ,Γ⟨ ∞ ⟩ intT ,Γ⟨ ∞ ⟩ intT}  
+                   (weakenBy-t (SfConstant {i} S.SfLess) (Γ₀ ,Γ⟨ ∞ ⟩ intT ,Γ⟨ ∞ ⟩ intT))
+                   ((fromℕ 0) ∷ (fromℕ 1) ∷ [])
+                   (intT ∷ intT ∷ [])
+                   (refl ∷ refl ∷ [])
+                   ?))
+  where
+    intT : ∀ {i : Size} {n : ℕ} {Γ₀ : Γ n} → T {↑ i} Γ₀ 
+    intT {i} = RefBase {↑ i} S.τInt (Constant {i} $ S.cBool true)
+
 
 -- fixMetricT : {i : Size} {n : ℕ} {Γ₀ : Γ n} → (tPrevMetric : t) → T {i} Γ₀
+fixMetricT _ = {!!}
+{-
 fixMetricT tPrevMetric = RefBase S.τInt (SApp (S.SfConstant S.SfAnd) 
                                      [ (SApp (S.SfConstant S.SfLess) 
                                              [ (Constant (S.cInt 0)) , (Var 0) ])
                                        (SApp (S.SfConstant S.SfLess)
                                              [ (Var 0) , tPrevMetric ]) ])
+-}
 
 -- boolṪ : {i : Size} {l m n : ℕ} {Γ₀ : Γ l} {Ω₀ : Ω Γ₀ m} {Φ₀ : Φ Γ₀ Ω₀ n} → Ṫ {i} Γ₀ Ω₀ Φ₀
 boolṪ = {!!} -- RefBase S.τBool (Constant (S.cBool true))
@@ -399,30 +459,24 @@ a ++Φ b = {!!}
 
 
 -- ⌈_⌉Φ : ∀ {m n : ℕ} → (Γ₀ : Γ m) → (Ω₀ : Ω Γ₀ n) → (Φ · Ω₀ m)
-⌈_⌉Φ = ?
+⌈_⌉Φ = {!!}
 
 -- ṪLift : ∀ {l m n : ℕ} {Γ₀ : Γ l} {Ω₀ : Ω Γ₀ l} {Φ₀ : Γ₀ Ω₀ m} → (T₀ : T Γ₀ ++Γ ⌊ Φ ⌋Γ) → Ṫ Γ₀ Ω₀ Φ₀
-ṪLift T₀ = ?
+ṪLift T₀ = {!!}
 
 -- ṫLift : ∀ {l m n : ℕ} {Γ₀ : Γ l} {Ω₀ : Ω Γ₀ m} {Φ₀ : Γ₀ Ω₀ n} → (t₀ : t Γ₀ ++Γ ⌊ Φ ⌋Γ) → ṫ Γ₀ Ω₀ Φ₀
 -- ṫLift t₀ = ? 
 
 -- I need weakening: if I'm well-formed or well-typed under context, I'm well-formed under extension of that context
-weaken1 : ∀  {i j : Size} {n : ℕ} → (Γ₀ : Γ n) → (T₀ : T {i} Γ₀) → (T₁ : T {j} Γ₀) → T {∞} (Γ₀ ,Γ⟨ j ⟩ T₁)
-weaken1 T₀ = {!!}
-
-weakenBy : ∀ {i : Size} {n m : ℕ} → (Γ₀ : Γ n) → (T₀ : T {i} Γ₀) → (Γ₁ : Γ m) → (p : PrefixΓ Γ₀ Γ₁) → T {∞} Γ₁
-weakenBy Γ₀ T₀ .Γ₀ (prefixΓ-Refl .Γ₀) = T↑∞ T₀
-weakenBy Γ₀ T₀ Γ₁ (prefixΓ-Step {i} .Γ₀ T₁ .Γ₁ p) = weakenBy (Γ₀ ,Γ⟨ i ⟩ T₁) (weaken1 Γ₀ T₀ T₁) Γ₁ p
 
 
 lookupΓ {n} Γ₀ l = (lookupΓ-aux n Γ₀ (prefixΓ-Refl Γ₀) (toℕ l) (bounded l))
   where open import Data.Fin.Properties
         lookupΓ-aux : (n : ℕ) → (Γ₁ : Γ n) → (p : PrefixΓ Γ₁ Γ₀) → (lookupInd : ℕ) → 
                       (q : lookupInd N.< n) → T {∞} Γ₀  
-        lookupΓ-aux (suc _) (Γ₁' ,Γ⟨ _ ⟩ T₁) p 0 (s≤s z≤n) = weakenBy Γ₁' T₁ Γ₀ (prefixΓ-Step Γ₁' T₁ Γ₀ p)
+        lookupΓ-aux (suc _) (Γ₁' ,Γ⟨ _ ⟩ T₁) p 0 (s≤s z≤n) = weakenBy-T Γ₁' T₁ Γ₀ (prefixΓ-Step Γ₁' T₁ Γ₀ p)
         lookupΓ-aux (suc n') (Γ₁ ,Γ⟨ _ ⟩ T₁) p (suc lookupInd') (s≤s (s≤s q)) = 
-          (lookupΓ-aux n' Γ₁ (prefixΓ-Step Γ₁ T₁ Γ₀ {!!}) lookupInd' (s≤s q))
+          (lookupΓ-aux n' Γ₁ (prefixΓ-Step Γ₁ T₁ Γ₀ p) lookupInd' (s≤s q))
         lookupΓ-aux zero · p lookupInd ()  
 
 
